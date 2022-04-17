@@ -9,8 +9,8 @@ no_chess=0
 class gameAlcore:
     def __init__(self):
         self.chessboard_size = 15    #设定棋盘大小
-        self.search_depth=4          #设定搜索深度
-        self.check_width=1         #设定搜索范围
+        self.search_depth=2          #设定搜索深度
+        self.check_width=2         #设定搜索范围
         self.game_record=[[0 for i in range(self.chessboard_size)] for i in range(self.chessboard_size)]   #建立棋盘,1为我方，2为敌方，0为空
         self.possible_location=[]   #更加已知棋子位置记录所有可能位置
         self.Evalclass = Evaluate(a)    #建立评估类
@@ -69,7 +69,7 @@ class gameAlcore:
                             if(depth==self.search_depth):#最外层递归
                                 result=i#记录下这个值，作为结果
 
-                    if(value>=past_value):#枝剪
+                    if(value>past_value):#枝剪
                         simple_return()
                         return value
                 else:#极小层
@@ -78,7 +78,7 @@ class gameAlcore:
                     else:
                         value=min(value,self.deep_seach(confirmed_loction, temp_possible_location,value_of_total_point, value, depth - 1))
 
-                    if(value<=past_value):#枝剪
+                    if(value<past_value):#枝剪
                         simple_return()
                         return value
                 #接下来还原之前的操作
