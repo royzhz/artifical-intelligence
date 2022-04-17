@@ -50,7 +50,7 @@ class gameAlcore:
                 else:
                     self.game_record[i[0]][i[1]]=ai_player
                 new_chess=[i[0],i[1]]
-                value_of_total_point=dp_value+0#self.Evalclass.eval(self.game_record,new_chess)#计算分支树到目前的所有得分
+                value_of_total_point=dp_value+self.Evalclass.eval(self.game_record,new_chess)#计算分支树到目前的所有得分
 
                 #print(term)
                 #for te in a.game_record:
@@ -114,11 +114,11 @@ class gameAlcore:
         self.possible_location.extend(self.insert_possible_location(new_chess_location,[],[]))
 
         result=self.max_min_tree()
-        # print(result)
+        #print(result)
         self.game_record[result[0]][result[1]]=ai_robot
         self.possible_location.extend(self.insert_possible_location(result, [], []))
         self.possible_location.remove(result)  # 删除已经落下的子
-        print(self.node_num)
+        #print(self.node_num)
         return result
 
     def reset_buffer(self):
