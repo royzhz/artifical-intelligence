@@ -9,7 +9,7 @@ no_chess=0
 class gameAlcore:
     def __init__(self):
         self.chessboard_size = 15    #设定棋盘大小
-        self.search_depth=2          #设定搜索深度
+        self.search_depth=4          #设定搜索深度
         self.check_width=1         #设定搜索范围
         self.game_record=[[0 for i in range(self.chessboard_size)] for i in range(self.chessboard_size)]   #建立棋盘,1为我方，2为敌方，0为空
         self.possible_location=[]   #更加已知棋子位置记录所有可能位置
@@ -134,7 +134,7 @@ class gameAlcore:
                     self.possible_location.remove([i,j])
 
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     print(1)
     a = gameAlcore()
     print(a.find_optimal_solution([7,7]))
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     #a.game_record[7][6]=ai_robot
     #a.game_record[7][5]=ai_robot
 
-    '''for i in a.game_record:
+    for i in a.game_record:
         print(i)
     while(1):
         slist = input("输入：").split()

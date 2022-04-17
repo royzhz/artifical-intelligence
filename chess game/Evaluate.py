@@ -1,5 +1,5 @@
-import numpy as np
 import sys
+import time as time
 
 WIN = 1  # 1000000    白赢
 LOSE = 2  # -10000000  黑赢
@@ -24,16 +24,16 @@ bdead3 = 20  # 5          黑死3
 wdead2 = 21  # -2         白死2
 bdead2 = 22  # 5          黑死2
 
+weight = [0, 1000000, -10000000, 50000, -100000, 400, -8000, 400, -8000, 20, -50, 20, -50,  1, -3, 1, -5, -2, 5, -2, 5, -2, 5]
+# 23个权重
 blank = 0
 black = 1
 people = 1
 robot = 2
 white = 2
 border = 3
-
 # 创建4x3x3x3x3x4的数组存类型,相当于一个表用来查的
-a = np.zeros(4 * 3 * 3 * 3 * 3 * 4).reshape(4, 3, 3, 3, 3, 4)
-
+a=[[[[[[0 for i in range(4)] for i in range(3)]for i in range(3)]for i in range(3)]for i in range(3)]for i in range(4)]
 class Evaluate:  # 评估类
     def __init__(self, a):  # 初始化a,之后a就不变了
         # 白赢
@@ -241,6 +241,12 @@ class Evaluate:  # 评估类
                                         if a[p1][p2][p3][p4][p5][p6] == 0:
                                             a[p1][p2][p3][p4][p5][p6] = bflex1
 
+    def get(self,table,x,y):
+        if(x<1 or x>15 or y<1or y>15):
+            return 3
+        else:
+            return table[x-1][y-1]
+
     def eval(self, table, pos):
         score = 0
         pos[0] = pos[0] + 1
@@ -264,29 +270,9 @@ class Evaluate:  # 评估类
         ran2 = 12 - ddis > 0 and 12 - ddis or 0
         ran3 = 12 - dis > 0 and 12 - dis or 0
         #weight = [0, 1000000, -10000000, 50000, -100000, 400, -8000, 400, -8000, 20, -50, 20, -50, 1, -3, 1, -3, 4, 4, 3, 3, 2, 2]  # 23个权重
-        weight = [0, 1000000, -10000000, 50000, -100000, 400, -8000, 400, -8000, 20, -50, 20, -50,  1, -3, 1, -5, -2, 5, -2, 5, -2, 5]  # 23个权重
-        num_dir = np.zeros(4 * 23).reshape(4, 23)  # 四个维度分别是横、竖、左上至右下、右上至左下，存四个维度棋型个数
-        num = np.zeros(23)  # 存放17种棋型各自的数量
-        virtual_table = np.zeros(17 * 17).reshape(17, 17)
-        # 设置边缘
-        virtual_table[0, :] = 3
-        virtual_table[16, :] = 3
-        virtual_table[:, 0] = 3
-        virtual_table[:, 16] = 3
-        # 复制横纵
-        for i in range(1, 16):
-            virtual_table[i][pos[1]] = table[i - 1][pos[1] - 1]
-            virtual_table[pos[0]][i] = table[pos[0] - 1][i - 1]
-        # 复制斜方向
-        for i in range(-(pmin-1), 16-pmax):
-            virtual_table[pos[0]+i][pos[1]+i] = table[pos[0]+i - 1][pos[1]+i - 1]
-        if psum <= 16:#左上
-            for i in range(psum-1):
-                virtual_table[1+i][psum-1-i] = table[i][psum-2-i]
-        else:#右下
-            for i in range(31-psum):
-                virtual_table[psum+i-15][15-i] = table[psum+i-16][14-i]
 
+        num_dir = [[0 for i in range(23)] for i in range(4)]  # 四个维度分别是横、竖、左上至右下、右上至左下，存四个维度棋型个数
+        num = [0 for i in range(23)]  # 存放17种棋型各自的数量
 
         start1 = pos[1] - 5 > 0 and pos[1]-5 or 0
         start0 = pos[0] - 5 > 0 and pos[0]-5 or 0
@@ -295,20 +281,20 @@ class Evaluate:  # 评估类
         len1 = ppmin-5>0 and 5 or ppmin
         # 判断横向棋型
         for j in range(ran1):
-            type = a[int(virtual_table[pos[0]][j+start1]), int(virtual_table[pos[0]][j +start1+1]), int(virtual_table[pos[0]][j + start1+2]), int(virtual_table[pos[0]][j + start1 +3]), int(virtual_table[pos[0]][j +start1+4]), int(virtual_table[pos[0]][j +start1+5])]
-            num_dir[0][int(type)] += 1
+            type = a[self.get(table,pos[0],j+start1)][self.get(table,pos[0],j +start1+1)][self.get(table,pos[0],j + start1+2)][self.get(table,pos[0],j + start1 +3)][self.get(table,pos[0],j +start1+4)][self.get(table,pos[0],j +start1+5)]
+            num_dir[0][type] += 1
         # 判断竖向棋型
         for i in range(ran0):
-            type = a[int(virtual_table[i + start0][pos[1]]), int(virtual_table[i + start0 + 1][pos[1]]), int(virtual_table[i + start0 + 2][pos[1]]), int(virtual_table[i + start0 + 3][pos[1]]), int(virtual_table[i +start0+ 4][pos[1]]), int(virtual_table[i +start0+ 5][pos[1]])]
-            num_dir[1][int(type)] += 1
+            type = a[self.get(table,i + start0,pos[1])][self.get(table,i + start0 + 1,pos[1])][self.get(table,i + start0 + 2,pos[1])][self.get(table,i + start0 + 3,pos[1])][self.get(table,i +start0+ 4,pos[1])][self.get(table,i +start0+ 5,pos[1])]
+            num_dir[1][type] += 1
         # 判断左上至右下棋型
         for i in range(min(ran0, ran1, ran2)):
-            type = a[int(virtual_table[pos[0]-len0+i][pos[1]-len0+i]), int(virtual_table[pos[0]-len0 + 1+i][pos[1]-len0 + 1+i]), int(virtual_table[pos[0]-len0 + 2+i][pos[1]-len0 + 2+i]), int(virtual_table[pos[0]-len0 + 3+i][pos[1]-len0 + 3+i]), int(virtual_table[pos[0]-len0 + 4+i][pos[1]-len0 + 4+i]), int(virtual_table[pos[0]-len0 + 5+i][pos[1]-len0 + 5+i])]
-            num_dir[2][int(type)] += 1
+            type = a[self.get(table,pos[0]-len0+i,pos[1]-len0+i)][self.get(table,pos[0]-len0 + 1+i,pos[1]-len0 + 1+i)][self.get(table,pos[0]-len0 + 2+i,pos[1]-len0 + 2+i)][self.get(table,pos[0]-len0 + 3+i,pos[1]-len0 + 3+i)][self.get(table,pos[0]-len0 + 4+i,pos[1]-len0 + 4+i)][self.get(table,pos[0]-len0 + 5+i,pos[1]-len0 + 5+i)]
+            num_dir[2][type] += 1
         # 判断右上至左下棋型
         for i in range(min(ran0, ran1, ran3)):
-            type = a[int(virtual_table[pos[0]-len1+i][pos[1]+len1-i]), int(virtual_table[pos[0]-len1 + 1+i][pos[1]+len1-i - 1]), int(virtual_table[pos[0]-len1 + 2+i][pos[1]+len1-i - 2]), int(virtual_table[pos[0]-len1 + 3+i][pos[1]+len1-i - 3]), int(virtual_table[pos[0]-len1 + 4+i][pos[1]+len1-i - 4]), int(virtual_table[pos[0]-len1 + 5+i][pos[1]+len1-i - 5])]
-            num_dir[3][int(type)] += 1
+            type = a[self.get(table,pos[0]-len1+i,pos[1]+len1-i)][self.get(table,pos[0]-len1 + 1+i,pos[1]+len1-i - 1)][self.get(table,pos[0]-len1 + 2+i,pos[1]+len1-i - 2)][self.get(table,pos[0]-len1 + 3+i,pos[1]+len1-i - 3)][self.get(table,pos[0]-len1 + 4+i,pos[1]+len1-i - 4)][self.get(table,pos[0]-len1 + 5+i,pos[1]+len1-i - 5)]
+            num_dir[3][type] += 1
 
         for i in range(1, 23):
             num[i] = num_dir[0][i] + num_dir[1][i] + num_dir[2][i] + num_dir[3][i]
@@ -322,6 +308,7 @@ class Evaluate:  # 评估类
 
 if __name__ == '__main__':
     b = Evaluate(a)
+    st=time.time()
     table = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -339,6 +326,7 @@ if __name__ == '__main__':
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              ]
 
-    for i in range(10000):
+    for i in range(100000):
         b.eval(table,[7,11])
-
+    be=time.time()
+    print(be-st)
