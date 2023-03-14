@@ -323,7 +323,7 @@ if __name__ == '__main__':
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
              ]
-    print(b.eval(table, [7, 6]))
+    #print(b.eval(table, [7, 6]))
 
     for i in range(100000):
         b.eval(table,[7,11])
